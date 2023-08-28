@@ -1,11 +1,11 @@
-package br.com.dbc.walletlife;
+package br.com.dbc.walletlife.apiRequests.usuario;
 
 import br.com.dbc.walletlife.modelos.Usuario;
 import br.com.dbc.walletlife.service.UsuarioService;
 
 import java.time.LocalDate;
 
-public class MainUsuario {
+public class CreateUsuario {
 
     public static void main(String[] args) {
 

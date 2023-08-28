@@ -41,9 +41,11 @@ public class UsuarioService {
                 throw new Exception("CPF Invalido!");
             }
 
-            usuarioRepository.adicionar(usuario);
-            System.out.println();
-            System.out.println("USUÁRIO criado com sucesso!");
+            if (!checarCamposUnicos(usuario)) {
+                usuarioRepository.adicionar(usuario);
+                System.out.println();
+                System.out.println("USUÁRIO criado com sucesso!");
+            }
 
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
@@ -66,11 +68,11 @@ public class UsuarioService {
 
     // atualização de um objeto
     public Usuario editarPessoa(Usuario usuario) {
-            Usuario usuarioEditado = null;
+        Usuario usuarioEditado = null;
         try {
             usuarioEditado = usuarioRepository.editar(usuario);
             System.out.println();
-            System.out.println("USUÁRIO Alterada com sucesso!");
+            System.out.println("USUARIO Alterada com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
@@ -87,6 +89,33 @@ public class UsuarioService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Usuario buscarUsuarioPeloId(Integer idUsuario) throws BancoDeDadosException {
+
+        return usuarioRepository.listar(idUsuario)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BancoDeDadosException("Nenhum usuário foi encontrado."));
+
+    }
+
+    private boolean checarCamposUnicos(Usuario usuario) throws SQLException {
+        boolean camposExistentes = false;
+
+        String emailUsuario = usuario.getEmail();
+        String cpfUsuario = usuario.getCpf();
+
+        if (usuarioRepository.validarEmail(emailUsuario)) {
+            System.out.println("email Já cadastrado");
+            camposExistentes = true;
+        }
+        if (usuarioRepository.validarCPF(cpfUsuario)) {
+            System.out.println("cpf Já cadastrado");
+            camposExistentes = true;
+        }
+
+        return camposExistentes;
     }
 
 }

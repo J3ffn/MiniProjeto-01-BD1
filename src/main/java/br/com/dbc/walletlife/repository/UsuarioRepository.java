@@ -5,6 +5,7 @@ import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Usuario;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.sql.*;
 import java.util.List;
 
@@ -46,15 +47,23 @@ public class UsuarioRepository extends DAO implements Repositorio<Integer, Usuar
     @Override
     public Usuario adicionar(Usuario usuario) throws BancoDeDadosException {
         EntityManager con = null;
+        EntityTransaction transactional = null;
         try {
             con = this.getEntityManager();
+            transactional = con.getTransaction();
+
+            transactional.begin();
             con.persist(usuario);
 
+            transactional.commit();
             return usuario;
 
         } catch (PersistenceException e){
-            e.printStackTrace();
-            throw new BancoDeDadosException("Não foi possível adicionar o usuário ao banco de dados.");
+            if (transactional.isActive()) {
+                transactional.rollback();
+            }
+//            e.printStackTrace();
+            throw new BancoDeDadosException(e.getCause().getMessage());
         } finally {
             if (con != null) {
                 con.close();
@@ -141,5 +150,30 @@ public class UsuarioRepository extends DAO implements Repositorio<Integer, Usuar
             }
         }
         return usuarios;
+    }
+
+    public boolean validarCPF(String cpf) throws BancoDeDadosException {
+        EntityManager con = null;
+        try {
+            con = this.getEntityManager();
+            String sql = "SELECT u FROM Usuario u " +
+                    "WHERE u.cpf = :cpf";
+
+            TypedQuery<Usuario> usuario = con.createQuery(sql, Usuario.class);
+            usuario.setParameter("cpf", cpf);
+
+            List<Usuario> usuarioStream = usuario.getResultList();
+
+            boolean campoExistente = usuarioStream.size() > 0;
+
+            return campoExistente;
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException("Ocorreu algum erro ao conectar-se com o banco de dados.");
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
     }
 }
