@@ -71,6 +71,7 @@ public class UsuarioService {
             usuarioEditado = usuarioRepository.editar(usuario);
             System.out.println();
             System.out.println("USUÁRIO Alterada com sucesso!");
+
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
