@@ -8,31 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvestimentoRepository implements Repositorio<Integer, Investimento> {
-    @Override
-    public Integer getProximoId(Connection connection) throws BancoDeDadosException {
-        try {
-            String sql = "SELECT seq_investimento.nextval mysequence from DUAL";
-            Statement stmt = connection.createStatement();
-            ResultSet res = stmt.executeQuery(sql);
-
-            if (res.next()) {
-                return res.getInt("mysequence");
-            }
-
-            return null;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
-        }
-    }
 
     @Override
     public Investimento adicionar(Investimento investimento) throws BancoDeDadosException {
         Connection con = null;
         try {
             con = ConexaoBancoDeDados.getConnection();
-
-            Integer proximoId = this.getProximoId(con);
-            investimento.setId(proximoId);
 
             String sql = "INSERT INTO INVESTIMENTO\n" +
                     "(ID_INVESTIMENTO, CORRETORA, TIPO, VALOR, DATA_INICIAL, DESCRICAO, ID_USUARIO)\n" +
@@ -64,7 +45,7 @@ public class InvestimentoRepository implements Repositorio<Integer, Investimento
     }
 
     @Override
-    public boolean remover(Integer id) throws BancoDeDadosException {
+    public void remover(Integer id) throws BancoDeDadosException {
         Connection con = null;
         try {
             con = ConexaoBancoDeDados.getConnection();
@@ -78,7 +59,6 @@ public class InvestimentoRepository implements Repositorio<Integer, Investimento
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {
@@ -93,7 +73,7 @@ public class InvestimentoRepository implements Repositorio<Integer, Investimento
     }
 
     @Override
-    public boolean editar(Investimento investimento) throws BancoDeDadosException {
+    public Investimento editar(Investimento investimento) throws BancoDeDadosException {
         Connection con = null;
         try {
             con = ConexaoBancoDeDados.getConnection();
@@ -113,7 +93,8 @@ public class InvestimentoRepository implements Repositorio<Integer, Investimento
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
+//            return res > 0;
+            return null; //TODO Mudar isso pq é temporário.
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class UsuarioService {
 
-    private static UsuarioRepository usuarioRepository;
+    private static final UsuarioRepository usuarioRepository;
 
     static {
         usuarioRepository = new UsuarioRepository();
@@ -18,7 +18,7 @@ public class UsuarioService {
     public UsuarioService() {
     }
 
-    public static boolean validarEmail(String email) {
+    public boolean validarEmail(String email) {
         try {
             return usuarioRepository.validarEmail(email);
         } catch (SQLException e) {
@@ -26,7 +26,7 @@ public class UsuarioService {
         }
     }
 
-    public static Usuario login(String email, String senha) {
+    public Usuario login(String email, String senha) {
         try {
             return usuarioRepository.loginUsuario(email, senha);
         } catch (SQLException e) {
@@ -35,56 +35,85 @@ public class UsuarioService {
     }
 
     // criação de um objeto
-    public static void adicionarUsuario(Usuario usuario) {
+    public void adicionarUsuario(Usuario usuario) {
         try {
             if (usuario.getCpf().length() != 11) {
                 throw new Exception("CPF Invalido!");
             }
 
-            Usuario pessoaAdicionada = usuarioRepository.adicionar(usuario);
-            System.out.println();
-            System.out.println("USUÁRIO criado com sucesso!");
+            if (!checarCamposUnicosJaCadastrados(usuario)) {
+                usuarioRepository.adicionar(usuario);
+                System.out.println();
+                System.out.println("USUÁRIO criado com sucesso!");
+            }
 
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
-//            System.out.println("TRACE: ");
-//            e.printStackTrace();
         }
     }
 
     public void removerPessoa(Integer id) {
         try {
-            boolean conseguiuRemover = usuarioRepository.remover(id);
+            usuarioRepository.remover(id);
             System.out.println();
-            System.out.println("USUÁRIO removida com sucesso!");
+            System.out.println("USUÁRIO removido com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
     }
 
     // atualização de um objeto
-    public void editarPessoa(Usuario usuario) {
+    public Usuario editarPessoa(Usuario usuario) {
+        Usuario usuarioEditado = null;
         try {
-            boolean conseguiuEditar = usuarioRepository.editar(usuario);
+            usuarioEditado = usuarioRepository.editar(usuario);
             System.out.println();
             System.out.println("USUÁRIO Alterada com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
+        return usuarioEditado;
     }
 
     // leitura
     public List<Usuario> listarPessoas() {
         try {
             List<Usuario> listar = usuarioRepository.listar(null);
-            listar.forEach(System.out::println);
             return listar;
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Usuario buscarUsuarioPeloId(Integer idUsuario) throws BancoDeDadosException {
+
+        return usuarioRepository.listar(idUsuario)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BancoDeDadosException("Nenhum usuário foi encontrado."));
+
+    }
+
+    private boolean checarCamposUnicosJaCadastrados(Usuario usuario) throws SQLException {
+        boolean camposExistentes = false;
+
+        String emailUsuario = usuario.getEmail();
+        String cpfUsuario = usuario.getCpf();
+
+        System.out.println();
+        if (usuarioRepository.validarEmail(emailUsuario)) {
+            System.out.println(emailUsuario + " já cadastrado");
+            camposExistentes = true;
+        }
+        if (usuarioRepository.validarCPF(cpfUsuario)) {
+            System.out.println(cpfUsuario + " já cadastrado");
+            camposExistentes = true;
+        }
+
+        return camposExistentes;
     }
 
 }
