@@ -41,18 +41,16 @@ public class UsuarioService {
                 throw new Exception("CPF Invalido!");
             }
 
-            if (!checarCamposUnicos(usuario)) {
+            if (!checarCamposUnicosJaCadastrados(usuario)) {
                 usuarioRepository.adicionar(usuario);
                 System.out.println();
-                System.out.println("USUÁRIO criado com sucesso!");
+                System.out.println("USUARIO criado com sucesso!");
             }
 
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
-//            System.out.println("TRACE: ");
-//            e.printStackTrace();
         }
     }
 
@@ -60,7 +58,7 @@ public class UsuarioService {
         try {
             usuarioRepository.remover(id);
             System.out.println();
-            System.out.println("USUÁRIO removido com sucesso!");
+            System.out.println("USUARIO removido com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
@@ -83,7 +81,6 @@ public class UsuarioService {
     public List<Usuario> listarPessoas() {
         try {
             List<Usuario> listar = usuarioRepository.listar(null);
-            listar.forEach(System.out::println);
             return listar;
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
@@ -100,18 +97,19 @@ public class UsuarioService {
 
     }
 
-    private boolean checarCamposUnicos(Usuario usuario) throws SQLException {
+    private boolean checarCamposUnicosJaCadastrados(Usuario usuario) throws SQLException {
         boolean camposExistentes = false;
 
         String emailUsuario = usuario.getEmail();
         String cpfUsuario = usuario.getCpf();
 
+        System.out.println();
         if (usuarioRepository.validarEmail(emailUsuario)) {
-            System.out.println("email Já cadastrado");
+            System.out.println(emailUsuario + " já cadastrado");
             camposExistentes = true;
         }
         if (usuarioRepository.validarCPF(cpfUsuario)) {
-            System.out.println("cpf Já cadastrado");
+            System.out.println(cpfUsuario + " já cadastrado");
             camposExistentes = true;
         }
 
