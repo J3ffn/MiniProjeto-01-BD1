@@ -10,30 +10,13 @@ import java.util.List;
 public class ReceitaRepository implements Repositorio<Integer, Receita> {
 
     @Override
-    public Integer getProximoId(Connection connection) throws SQLException {
-        String sql = "SELECT seq_receita.nextval mysequence from DUAL";
-
-        Statement stmt = connection.createStatement();
-        ResultSet res = stmt.executeQuery(sql);
-
-        if (res.next()) {
-            return res.getInt("mysequence");
-        }
-
-        return null;
-    }
-
-    @Override
     public Receita adicionar(Receita receita) throws BancoDeDadosException {
         Connection con = null;
 
         try {
             con = ConexaoBancoDeDados.getConnection();
 
-            Integer proximoId = this.getProximoId(con);
-            receita.setId(proximoId);
-
-            String sql = "INSERT INTO RECEITA\n" +
+            String sql = "INSERT INTO RECEITA \n" +
                     "(ID_RECEITA, BANCO, EMPRESA, VALOR, DESCRICAO, ID_USUARIO)\n" +
                     "VALUES(?, ?, ?, ?, ?, ?)\n";
 
@@ -62,7 +45,7 @@ public class ReceitaRepository implements Repositorio<Integer, Receita> {
     }
 
     @Override
-    public boolean remover(Integer id) throws BancoDeDadosException {
+    public void remover(Integer id) throws BancoDeDadosException {
 
         Connection con = null;
         try {
@@ -77,7 +60,6 @@ public class ReceitaRepository implements Repositorio<Integer, Receita> {
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {
@@ -92,7 +74,7 @@ public class ReceitaRepository implements Repositorio<Integer, Receita> {
     }
 
     @Override
-    public boolean editar(Receita receita) throws BancoDeDadosException {
+    public Receita editar(Receita receita) throws BancoDeDadosException {
 
         Connection con = null;
 
@@ -114,7 +96,8 @@ public class ReceitaRepository implements Repositorio<Integer, Receita> {
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
+//            return res > 0;
+            return null;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {

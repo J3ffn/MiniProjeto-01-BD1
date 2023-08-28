@@ -34,7 +34,7 @@ public class DespesaService {
     // remoção
     public void removerDespesa(Integer id) {
         try {
-            boolean conseguiuRemover = despesaRepository.remover(id);
+            despesaRepository.remover(id);
             System.out.println();
             System.out.println("DESPESA removida com sucesso!");
         } catch (BancoDeDadosException e) {

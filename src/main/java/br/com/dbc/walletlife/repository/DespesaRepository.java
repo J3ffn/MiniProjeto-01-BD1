@@ -11,30 +11,10 @@ import java.util.List;
 public class DespesaRepository implements Repositorio<Integer, Despesa>{
 
     @Override
-    public Integer getProximoId(Connection connection) throws SQLException {
-        try {
-            String sql = "SELECT seq_despesa.nextval mysequence from DUAL";
-            Statement stmt = connection.createStatement();
-            ResultSet res = stmt.executeQuery(sql);
-
-            if (res.next()) {
-                return res.getInt("mysequence");
-            }
-
-            return null;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
-        }
-    }
-
-    @Override
     public Despesa adicionar(Despesa despesa) throws BancoDeDadosException {
         Connection con = null;
         try {
             con = ConexaoBancoDeDados.getConnection();
-
-            Integer proximoId = this.getProximoId(con);
-            despesa.setId(proximoId);
 
             String sql = "INSERT INTO DESPESA\n" +
                     "(ID_DESPESA, TIPO, VALOR, DESCRICAO, DATA_PAGAMENTO, ID_USUARIO )\n" +
@@ -65,7 +45,7 @@ public class DespesaRepository implements Repositorio<Integer, Despesa>{
     }
 
     @Override
-    public boolean remover(Integer id) throws BancoDeDadosException {
+    public void remover(Integer id) throws BancoDeDadosException {
         Connection con = null;
         try {
             con = ConexaoBancoDeDados.getConnection();
@@ -79,7 +59,6 @@ public class DespesaRepository implements Repositorio<Integer, Despesa>{
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {
@@ -95,7 +74,7 @@ public class DespesaRepository implements Repositorio<Integer, Despesa>{
     }
 
     @Override
-    public boolean editar(Despesa despesa) throws BancoDeDadosException {
+    public Despesa editar(Despesa despesa) throws BancoDeDadosException {
         Connection con = null;
         try {
             con =ConexaoBancoDeDados.getConnection();
@@ -116,7 +95,8 @@ public class DespesaRepository implements Repositorio<Integer, Despesa>{
             // Executa-se a consulta
             int res = stmt.executeUpdate();
 
-            return res > 0;
+//            return res > 0;
+            return null;
         } catch (SQLException e) {
             throw new BancoDeDadosException(e.getCause());
         } finally {

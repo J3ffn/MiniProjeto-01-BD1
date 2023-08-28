@@ -4,196 +4,140 @@ package br.com.dbc.walletlife.repository;
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Usuario;
 
+import javax.persistence.*;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
-public class UsuarioRepository implements Repositorio<Integer, Usuario> {
+public class UsuarioRepository extends DAO implements Repositorio<Integer, Usuario> {
 
     public boolean validarEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM USUARIO u " +
+        EntityManager con = this.getEntityManager();
+        String sql = "SELECT u FROM Usuario u " +
                 "WHERE u.email = '" + email + "'";
 
-        Statement stmt = ConexaoBancoDeDados.getConnection().createStatement();
-        ResultSet res = stmt.executeQuery(sql);
+        TypedQuery<Usuario> usuario = con.createQuery(sql, Usuario.class);
 
-        return res.getRow() > 0;
+        List<Usuario> usuarioStream = usuario.getResultList();
+
+        boolean campoExistente = usuarioStream.size() > 0;
+
+        con.close();
+        return campoExistente;
     }
 
     public Usuario loginUsuario(String email, String senha) throws SQLException {
-        String sql = "SELECT * FROM USUARIO u " +
-                "WHERE u.email = '" + email + "' AND u.senha = '" + senha + "'";
+        EntityManager con = this.getEntityManager();
 
-        Statement stmt = ConexaoBancoDeDados.getConnection().createStatement();
-        ResultSet res = stmt.executeQuery(sql);
+        String sql = "SELECT u FROM Usuario u " +
+                "WHERE u.email = :email AND u.senha = :senha";
 
-        Usuario usuario = null;
-        while (res.next()) {
-            usuario = new Usuario();
-            usuario.setIdUsuario(res.getInt("id_usuario"));
-            usuario.setNomeCompleto(res.getString("nome"));
-            usuario.setCpf(res.getString("cpf"));
-            usuario.setEmail(res.getString("email"));
-            usuario.setSenha(res.getString("senha"));
-            usuario.setDataNascimento(res.getDate("dataNascimento").toLocalDate());
-        }
+        TypedQuery<Usuario> query = con.createQuery(sql, Usuario.class);
 
-        return usuario;
-    }
+        query.setParameter("email", email);
+        query.setParameter("senha", senha);
 
-    @Override
-    public Integer getProximoId(Connection connection) throws SQLException {
-        String sql = "SELECT seq_usuario.nextval mysequence from DUAL";
+        List<Usuario> usuario = query.getResultList();
 
-        Statement stmt = connection.createStatement();
-        ResultSet res = stmt.executeQuery(sql);
+        con.close();
 
-        if (res.next()) {
-            return res.getInt("mysequence");
-        }
-
-        return null;
+        return usuario.stream().findFirst().orElse(null);
     }
 
     @Override
     public Usuario adicionar(Usuario usuario) throws BancoDeDadosException {
-        Connection con = null;
+        EntityManager con = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
-            Integer proxId = this.getProximoId(con);
-            usuario.setIdUsuario(proxId);
+            con = this.getEntityManager();
+            con.persist(usuario);
 
-            String sql = "INSERT INTO USUARIO(ID_USUARIO, NOME, DATANASCIMENTO, CPF, EMAIL, SENHA)" +
-                    "VALUES(?, ?, ?, ?, ?, ?)";
-
-            PreparedStatement stmt = con.prepareStatement(sql);
-
-            stmt.setInt(1, usuario.getIdUsuario());
-            stmt.setString(2, usuario.getNomeCompleto());
-            stmt.setDate(3, Date.valueOf(usuario.getDataNascimento()));
-            stmt.setString(4, usuario.getCpf()); // @TODO Possível erro.
-            stmt.setString(5, usuario.getEmail());
-            stmt.setString(6, usuario.getSenha());
-
-            int res = stmt.executeUpdate();
             return usuario;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+
+        } catch (PersistenceException e){
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível adicionar o usuário ao banco de dados.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
-    public boolean remover(Integer id) throws BancoDeDadosException {
-        Connection con = null;
+    public void remover(Integer idUsuario) throws BancoDeDadosException {
+        EntityManager con = null;
+        EntityTransaction transection = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
+            con = this.getEntityManager();
+            transection = con.getTransaction();
 
-            String sql = "DELETE FROM USUARIO WHERE ID_CONTATO = ?";
+            transection.begin();
 
-            PreparedStatement stmt = con.prepareStatement(sql);
+            Usuario usuario = con.find(Usuario.class, idUsuario);
 
-            stmt.setInt(1, id);
+            con.remove(usuario);
 
-            // Executa-se a consulta
-            int res = stmt.executeUpdate();
-            System.out.println("removerUsuarioPorId.res= " + res);
+            transection.commit();
 
-            return res > 0;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+        } catch (PersistenceException e) {
+            if (transection != null && transection.isActive()) {
+                transection.rollback();
+            }
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível deletar o usuário do banco.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
-    public boolean editar(Usuario usuario) throws BancoDeDadosException {
-        Connection con = null;
+    public Usuario editar(Usuario usuario) throws BancoDeDadosException {
+        EntityManager con = null;
+        EntityTransaction transection = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
+            con = this.getEntityManager();
+            transection = con.getTransaction();
 
-            StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE PESSOA SET ");
-            sql.append(" nome = ?,");
-            sql.append(" dataNascimento = ? ");
-            sql.append(" cpf = ?,");
-            sql.append(" email = ?,");
-            sql.append(" senha = ?,");
-            sql.append("where id_usuario = ?");
+            transection.begin();
 
-            PreparedStatement stmt = con.prepareStatement(sql.toString());
+            Usuario usuarioRetornadoDoBanco = con.merge(usuario);
 
-            stmt.setString(1, usuario.getNomeCompleto());
-            stmt.setDate(2, Date.valueOf(usuario.getDataNascimento()));
-            stmt.setString(3, usuario.getCpf());
-            stmt.setString(4, usuario.getEmail());
-            stmt.setString(5, usuario.getSenha());
-            stmt.setInt(6, usuario.getIdUsuario());
+            transection.commit();
 
-            // Executa-se a consulta
-            int res = stmt.executeUpdate();
-            System.out.println("editarUsuario.res=" + res);
-
-            return res > 0;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+            return usuarioRetornadoDoBanco;
+        } catch (PersistenceException e) {
+            if (transection != null && transection.isActive()) {
+                transection.rollback();
+            }
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível editar o usuário do banco.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
     public List<Usuario> listar(Integer idUsuario) throws BancoDeDadosException {
-        List<Usuario> usuarios = new ArrayList<>();
-        Connection con = null;
+        List<Usuario> usuarios;
+        EntityManager con = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
-            Statement stmt = con.createStatement();
+            con = this.getEntityManager();
 
-            String sql = "SELECT * FROM USUARIO WHERE ID_USUARIO = " + idUsuario;
+            String sql = "Select u From Usuario u where (:idUsuario is null or u.idUsuario = :idUsuario)";
 
-            // Executa-se a consulta
-            ResultSet res = stmt.executeQuery(sql);
+            TypedQuery<Usuario> query = con.createQuery(sql, Usuario.class);
+            query.setParameter("idUsuario", idUsuario);
+            usuarios = query.getResultList();
 
-            while (res.next()) {
-                Usuario usuario = new Usuario();
-                usuario.setIdUsuario(res.getInt("id_usuario"));
-                usuario.setNomeCompleto(res.getString("nome"));
-                usuario.setDataNascimento(res.getDate("dataNascimento").toLocalDate());
-                usuario.setCpf(res.getString("cpf"));
-                usuario.setEmail(res.getString("email"));
-                usuario.setSenha(res.getString("senha"));
-                usuarios.add(usuario);
-            }
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível listar os usuários.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
         return usuarios;
