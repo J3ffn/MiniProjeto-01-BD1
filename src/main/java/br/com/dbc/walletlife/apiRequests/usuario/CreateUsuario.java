@@ -14,28 +14,28 @@ public class CreateUsuario {
 
         Usuario usuarioJeff = new Usuario(
                 "Jeff",
-                LocalDate.of(2000, 12, 12),
+                LocalDate.of(2003, 12, 14),
                 "04673072682",
                 "jeff@teste.com",
                 "9215221#");
 
         Usuario usuarioEduardo = new Usuario(
-                "Jeff",
-                LocalDate.of(2000, 12, 12),
+                "Eduardo",
+                LocalDate.of(1995, 7, 22),
                 "18412957301",
                 "eduardo@teste.com",
                 "32@1423");
 
         Usuario usuarioBeatriz = new Usuario(
-                "Jeff",
-                LocalDate.of(2000, 12, 12),
+                "Beatriz",
+                LocalDate.of(2000, 4, 7),
                 "16342938271",
                 "beatriz@teste.com",
                 "15112!476");
 
-        List<Usuario> listaDeusuarios = List.of(usuarioJeff, usuarioEduardo, usuarioBeatriz);
+        List<Usuario> listaDeUsuarios = List.of(usuarioJeff, usuarioEduardo, usuarioBeatriz);
 
-        listaDeusuarios.forEach(usuarioService::adicionarUsuario);
+        listaDeUsuarios.forEach(usuarioService::adicionarUsuario);
 
 
 

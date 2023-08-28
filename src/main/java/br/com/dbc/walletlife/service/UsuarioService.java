@@ -44,7 +44,7 @@ public class UsuarioService {
             if (!checarCamposUnicosJaCadastrados(usuario)) {
                 usuarioRepository.adicionar(usuario);
                 System.out.println();
-                System.out.println("USUARIO criado com sucesso!");
+                System.out.println("USUÁRIO criado com sucesso!");
             }
 
         } catch (BancoDeDadosException e) {
@@ -58,7 +58,7 @@ public class UsuarioService {
         try {
             usuarioRepository.remover(id);
             System.out.println();
-            System.out.println("USUARIO removido com sucesso!");
+            System.out.println("USUÁRIO removido com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
@@ -70,7 +70,7 @@ public class UsuarioService {
         try {
             usuarioEditado = usuarioRepository.editar(usuario);
             System.out.println();
-            System.out.println("USUARIO Alterada com sucesso!");
+            System.out.println("USUÁRIO Alterada com sucesso!");
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }

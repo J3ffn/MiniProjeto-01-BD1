@@ -10,7 +10,7 @@ public class ListUsuarios {
 
         usuarioService.listarPessoas()
                 .forEach(
-                        usuario -> System.out.println(usuario.toString())
+                        usuario -> System.out.println(usuario.toString() + "\n")
                 );
     }
 }
