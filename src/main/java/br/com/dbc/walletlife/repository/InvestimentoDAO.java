@@ -13,7 +13,7 @@ import br.com.dbc.walletlife.modelos.Investimento;
 import br.com.dbc.walletlife.repository.ConexaoBancoDeDados;
 import br.com.dbc.walletlife.repository.Repositorio;
 
-public class InvestimentoDAO implements Repositorio<Integer, Investimento> {
+public class InvestimentoDAO extends DAO implements Repositorio<Integer, Investimento> {
 
 	@Override
 	public Investimento adicionar(Investimento investimento) throws BancoDeDadosException {
