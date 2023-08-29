@@ -3,149 +3,119 @@ package br.com.dbc.walletlife.repository;
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Receita;
 
-import java.sql.*;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
-public class ReceitaRepository implements Repositorio<Integer, Receita> {
+public class ReceitaRepository extends DAO implements Repositorio<Integer, Receita> {
 
     @Override
     public Receita adicionar(Receita receita) throws BancoDeDadosException {
-        Connection con = null;
-
+        EntityManager con = null;
+        EntityTransaction transactional = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
+            con = this.getEntityManager();
+            transactional = con.getTransaction();
 
-            String sql = "INSERT INTO RECEITA \n" +
-                    "(ID_RECEITA, BANCO, EMPRESA, VALOR, DESCRICAO, ID_USUARIO)\n" +
-                    "VALUES(?, ?, ?, ?, ?, ?)\n";
+            transactional.begin();
+            con.persist(receita);
 
-            PreparedStatement stmt = con.prepareStatement(sql);
+            transactional.commit();
 
-            stmt.setInt(1, receita.getId());
-            stmt.setString(2, receita.getBanco());
-            stmt.setString(3, receita.getEmpresa());
-            stmt.setDouble(4, receita.getValor());
-            stmt.setString(5, receita.getDescricao());
-            stmt.setInt(6, receita.getIdFK());
-
-            int res = stmt.executeUpdate();
             return receita;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+        } catch (PersistenceException e){
+            if (transactional.isActive()) {
+                transactional.rollback();
+            }
+//            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível adicionar a receita ao banco.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
-    public void remover(Integer id) throws BancoDeDadosException {
-
-        Connection con = null;
+    public void remover(Integer idReceita) throws BancoDeDadosException {
+        EntityManager con = null;
+        EntityTransaction transection = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
+            con = this.getEntityManager();
+            transection = con.getTransaction();
 
-            String sql = "DELETE FROM RECEITA WHERE id_receita = ?";
+            transection.begin();
 
-            PreparedStatement stmt = con.prepareStatement(sql);
+            Receita receita = con.find(Receita.class, idReceita);
 
-            stmt.setInt(1, id);
+            con.remove(receita);
 
-            // Executa-se a consulta
-            int res = stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+            transection.commit();
+        } catch (PersistenceException e) {
+            if (transection != null && transection.isActive()) {
+                transection.rollback();
+            }
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível deletar a receita do banco.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
     public Receita editar(Receita receita) throws BancoDeDadosException {
-
-        Connection con = null;
-
+        EntityManager con = null;
+        EntityTransaction transection = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
+            con = this.getEntityManager();
+            transection = con.getTransaction();
 
-            StringBuilder sql = new StringBuilder();
-            sql.append("UPDATE RECEITA SET ");
-            sql.append(" valor = ?, ");
-            sql.append(" descricao = ? ");
-            sql.append(" WHERE ID_USUARIO = ?");
+            transection.begin();
 
-            PreparedStatement stmt = con.prepareStatement(sql.toString());
+            Receita receitaAlteradaRetornadaDoBanco = con.merge(receita);
 
-            stmt.setDouble(1, receita.getValor());
-            stmt.setString(2, receita.getDescricao());
-            stmt.setInt(3, receita.getIdFK());
+            transection.commit();
 
-            // Executa-se a consulta
-            int res = stmt.executeUpdate();
-
-//            return res > 0;
-            return null;
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+            return receitaAlteradaRetornadaDoBanco;
+        } catch (PersistenceException e) {
+            if (transection != null && transection.isActive()) {
+                transection.rollback();
+            }
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível editar a receita do banco.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
     }
 
     @Override
-    public List<Receita> listar(Integer id) throws BancoDeDadosException {
-
-        List<Receita> receitas = new ArrayList<>();
-        Connection con = null;
+    public List<Receita> listar(Integer idReceita) throws BancoDeDadosException {
+        List<Receita> receitas;
+        EntityManager con = null;
         try {
-            con = ConexaoBancoDeDados.getConnection();
-            Statement stmt = con.createStatement();
+            con = this.getEntityManager();
 
-            String sql = "SELECT * FROM RECEITA WHERE ID_USUARIO = " + id;
+            String sql = "Select u From Receita u where (:idReceita is null or u.idReceita = :idReceita)";
 
-            // Executa-se a consulta
-            ResultSet res = stmt.executeQuery(sql);
+            TypedQuery<Receita> query = con.createQuery(sql, Receita.class);
+            query.setParameter("idReceita", idReceita);
 
-            while (res.next()) {
-                Receita receita = new Receita();
-                receita.setId(res.getInt("id_receita"));
-                receita.setBanco(res.getString("banco"));
-                receita.setEmpresa(res.getString("empresa"));
-                receita.setValor(res.getDouble("valor"));
-                receita.setDescricao(res.getString("descricao"));
-                receita.setIdFK(res.getInt("id_usuario"));
-                receitas.add(receita);
-            }
-        } catch (SQLException e) {
-            throw new BancoDeDadosException(e.getCause());
+            receitas = query.getResultList();
+
+            return receitas;
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível listar as receitas.");
         } finally {
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (con != null) {
+                con.close();
             }
         }
-        return receitas;
     }
 }

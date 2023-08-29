@@ -1,27 +1,30 @@
 package br.com.dbc.walletlife.modelos;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
+
 public abstract class AbstractMovimentoDinheiro<T> {
 
-    protected T tipo;
-    private int id;
+    @Column(name = "TIPO_DE_MOVIMENTO", length = 10)
+    @Enumerated(EnumType.STRING)
+    private T tipo;
+
+    @Column(name = "VALOR")
     private Double valor;
+
+    @Column(name = "DESCRICAO")
     private String descricao;
 
-    public AbstractMovimentoDinheiro() {
-    }
+    public AbstractMovimentoDinheiro() {}
 
     public AbstractMovimentoDinheiro(T tipo, double valor, String descricao) {
         this.tipo = tipo;
         this.valor = valor;
         this.descricao = descricao;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public T getTipo() {
