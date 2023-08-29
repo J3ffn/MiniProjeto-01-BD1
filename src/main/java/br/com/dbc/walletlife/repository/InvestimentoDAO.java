@@ -1,4 +1,4 @@
-package dao;
+package br.com.dbc.walletlife.repository;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -10,8 +10,6 @@ import java.util.List;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Investimento;
-import br.com.dbc.walletlife.repository.ConexaoBancoDeDados;
-import br.com.dbc.walletlife.repository.Repositorio;
 
 public class InvestimentoDAO extends DAO implements Repositorio<Integer, Investimento> {
 

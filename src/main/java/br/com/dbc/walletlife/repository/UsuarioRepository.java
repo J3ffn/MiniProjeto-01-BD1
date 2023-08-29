@@ -5,7 +5,6 @@ import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Usuario;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import java.sql.*;
 import java.util.List;
 
