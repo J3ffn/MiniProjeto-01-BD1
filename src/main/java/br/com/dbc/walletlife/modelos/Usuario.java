@@ -18,10 +18,13 @@ public class Usuario {
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
+    @Column(name = "cpf", unique = true, columnDefinition = "CHAR(11)")
     private String cpf;
 
+    @Column(name = "email", unique = true, length = 50)
     private String email;
 
+    @Column(name = "senha", length = 30)
     private String senha;
 
     public Usuario() {

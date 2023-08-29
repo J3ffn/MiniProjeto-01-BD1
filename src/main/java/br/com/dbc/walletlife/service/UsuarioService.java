@@ -41,16 +41,16 @@ public class UsuarioService {
                 throw new Exception("CPF Invalido!");
             }
 
-            usuarioRepository.adicionar(usuario);
-            System.out.println();
-            System.out.println("USUÁRIO criado com sucesso!");
+            if (!checarCamposUnicosJaCadastrados(usuario)) {
+                usuarioRepository.adicionar(usuario);
+                System.out.println();
+                System.out.println("USUÁRIO criado com sucesso!");
+            }
 
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
-//            System.out.println("TRACE: ");
-//            e.printStackTrace();
         }
     }
 
@@ -66,11 +66,12 @@ public class UsuarioService {
 
     // atualização de um objeto
     public Usuario editarPessoa(Usuario usuario) {
-            Usuario usuarioEditado = null;
+        Usuario usuarioEditado = null;
         try {
             usuarioEditado = usuarioRepository.editar(usuario);
             System.out.println();
             System.out.println("USUÁRIO Alterada com sucesso!");
+
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
@@ -81,12 +82,39 @@ public class UsuarioService {
     public List<Usuario> listarPessoas() {
         try {
             List<Usuario> listar = usuarioRepository.listar(null);
-            listar.forEach(System.out::println);
             return listar;
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Usuario buscarUsuarioPeloId(Integer idUsuario) throws BancoDeDadosException {
+
+        return usuarioRepository.listar(idUsuario)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BancoDeDadosException("Nenhum usuário foi encontrado."));
+
+    }
+
+    private boolean checarCamposUnicosJaCadastrados(Usuario usuario) throws SQLException {
+        boolean camposExistentes = false;
+
+        String emailUsuario = usuario.getEmail();
+        String cpfUsuario = usuario.getCpf();
+
+        System.out.println();
+        if (usuarioRepository.validarEmail(emailUsuario)) {
+            System.out.println(emailUsuario + " já cadastrado");
+            camposExistentes = true;
+        }
+        if (usuarioRepository.validarCPF(cpfUsuario)) {
+            System.out.println(cpfUsuario + " já cadastrado");
+            camposExistentes = true;
+        }
+
+        return camposExistentes;
     }
 
 }
