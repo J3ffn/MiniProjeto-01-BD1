@@ -25,7 +25,7 @@ public class InvestimentoDAO extends DAO implements Repositorio<Integer, Investi
 					"VALUES (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement stmt = con.prepareStatement(sql);
 
-			stmt.setInt(1, investimento.getId());
+//			stmt.setInt(1, investimento.getId());
 			stmt.setString(2, investimento.getCorretora());
 			stmt.setString(3, investimento.getTipo());
 			stmt.setDouble(4, investimento.getValor());
@@ -147,7 +147,7 @@ public class InvestimentoDAO extends DAO implements Repositorio<Integer, Investi
 
 			while (res.next()) {
 				Investimento investimento = new Investimento();
-				investimento.setId(res.getInt("ID_INVESTIMENTO"));
+//				investimento.setId(res.getInt("ID_INVESTIMENTO"));
 				investimento.setCorretora(res.getString("CORRETORA"));
 				investimento.setTipo(res.getString("TIPO"));
 				investimento.setValor(res.getDouble("VALOR"));

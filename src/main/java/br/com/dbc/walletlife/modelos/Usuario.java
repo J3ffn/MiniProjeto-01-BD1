@@ -2,6 +2,7 @@ package br.com.dbc.walletlife.modelos;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -12,23 +13,28 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Integer idUsuario;
 
-    @Column(name = "nome_completo")
+    @Column(name = "nome_completo", nullable = false)
     private String nomeCompleto;
 
-    @Column(name = "data_nascimento")
+    @Column(name = "data_de_nascimento", nullable = false)
     private LocalDate dataNascimento;
 
-    @Column(name = "cpf", unique = true, columnDefinition = "CHAR(11)")
+    @Column(name = "cpf", nullable = false, unique = true, columnDefinition = "CHAR(11)")
     private String cpf;
 
-    @Column(name = "email", unique = true, length = 50)
+    @Column(name = "email", nullable = false, unique = true, length = 50)
     private String email;
 
     @Column(name = "senha", length = 30)
     private String senha;
 
-    public Usuario() {
-    }
+    @OneToMany(mappedBy = "usuarioFK", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Receita> receitas;
+
+    @OneToMany(mappedBy = "usuarioFK", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Despesa> despesas;
+
+    public Usuario() {}
 
     public Usuario(String nomeCompleto, LocalDate dataNascimento, String cpf, String email, String senha) {
         this.nomeCompleto = nomeCompleto;
@@ -84,6 +90,22 @@ public class Usuario {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public List<Receita> getReceitas() {
+        return receitas;
+    }
+
+    public void setReceitas(List<Receita> receitas) {
+        this.receitas = receitas;
+    }
+
+    public List<Despesa> getDespesas() {
+        return despesas;
+    }
+
+    public void setDespesas(List<Despesa> despesas) {
+        this.despesas = despesas;
     }
 
     @Override
