@@ -14,7 +14,7 @@ import br.com.dbc.walletlife.modelos.Despesa;
 import br.com.dbc.walletlife.repository.ConexaoBancoDeDados;
 import br.com.dbc.walletlife.repository.Repositorio;
 
-public class DespesaDAO implements Repositorio<Integer, Despesa> {
+public class DespesaDAO extends DAO implements Repositorio<Integer, Despesa> {
 
 	@Override
 	public Despesa adicionar(Despesa despesa) throws BancoDeDadosException {
