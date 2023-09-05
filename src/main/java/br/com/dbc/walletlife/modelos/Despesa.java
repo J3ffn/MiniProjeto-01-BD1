@@ -17,7 +17,7 @@ public class Despesa extends AbstractMovimentoDinheiro<TipoDespesaEReceita> {
     @Column(name = "data_de_pagamento", nullable = false)
     private LocalDate dataPagamento;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario")
     private Usuario usuarioFK;
 
@@ -58,7 +58,10 @@ public class Despesa extends AbstractMovimentoDinheiro<TipoDespesaEReceita> {
 
     @Override
     public String toString() {
-        return String.format("""
-                %s Data Pagamento: %s""", super.toString(), getDataPagamento());
+        return "Despesa{" +
+                    "idDespesa= " + idDespesa + ", " +
+                    "dataPagamento= " + dataPagamento + ", " +
+                    "usuarioFK= " + usuarioFK.getIdUsuario() +
+                '}';
     }
 }

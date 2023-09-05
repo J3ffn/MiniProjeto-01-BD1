@@ -1,4 +1,4 @@
-package br.com.dbc.walletlife.repository;
+package br.com.dbc.walletlife.dao;
 
 import java.util.List;
 
@@ -9,8 +9,9 @@ import javax.persistence.TypedQuery;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Investimento;
+import br.com.dbc.walletlife.modelos.Usuario;
 
-public class InvestimentoRepository extends DAO implements Repositorio<Integer, Investimento> {
+public class InvestimentoDAO extends PersistenciaDAO implements CrudDAO<Integer, Investimento> {
 
     @Override
     public Investimento adicionar(Investimento investimento) throws BancoDeDadosException {
@@ -102,7 +103,7 @@ public class InvestimentoRepository extends DAO implements Repositorio<Integer, 
         try {
             con = this.getEntityManager();
 
-            String sql = "Select u From Receita u where (:idReceita is null or u.idReceita = :idReceita)";
+            String sql = "Select i From Investimento i where (:idInvestimento is null or i.id = :idInvestimento)";
 
             TypedQuery<Investimento> query = con.createQuery(sql, Investimento.class);
             query.setParameter("idInvestimento", idInvestimento);
@@ -112,7 +113,56 @@ public class InvestimentoRepository extends DAO implements Repositorio<Integer, 
             return investimentos;
         } catch (PersistenceException e) {
             e.printStackTrace();
-            throw new BancoDeDadosException("Não foi possível listar as receitas.");
+            throw new BancoDeDadosException("Não foi possível listar os Investimentos.");
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    public Investimento buscarPeloId(Integer idInvestimento) throws BancoDeDadosException {
+        Investimento investimento;
+        EntityManager con = null;
+        try {
+            con = this.getEntityManager();
+
+            String sql = "Select i From Investimento i where (:idInvestimento is null or i.id = :idInvestimento)";
+
+            TypedQuery<Investimento> query = con.createQuery(sql, Investimento.class);
+            query.setParameter("idInvestimento", idInvestimento);
+
+            investimento = query.getResultStream().findFirst().orElse(null);
+
+
+            return investimento;
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException(e.getMessage());
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    public List<Investimento> listarInvestimentoPeloUsuario(Usuario usuario) throws BancoDeDadosException {
+        List<Investimento> investimentos;
+        EntityManager con = null;
+        try {
+            con = this.getEntityManager();
+
+            String sql = "Select i From Investimento i where (:usuario is null or i.usuarioFK = :usuario)";
+
+            TypedQuery<Investimento> query = con.createQuery(sql, Investimento.class);
+            query.setParameter("usuario", usuario);
+
+            investimentos = query.getResultList();
+
+            return investimentos;
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível listar os Investimentos.");
         } finally {
             if (con != null) {
                 con.close();

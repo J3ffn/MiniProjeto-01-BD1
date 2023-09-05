@@ -1,19 +1,29 @@
 package br.com.dbc.walletlife.apiRequests.receita;
 
+import br.com.dbc.walletlife.enumerators.TipoDespesaEReceita;
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
+import br.com.dbc.walletlife.modelos.Receita;
 import br.com.dbc.walletlife.modelos.Usuario;
+import br.com.dbc.walletlife.service.ReceitaService;
 import br.com.dbc.walletlife.service.UsuarioService;
+
+import java.util.List;
+import java.util.Optional;
 
 public class EditarReceita {
     public static void main(String[] args) throws BancoDeDadosException {
 
-        UsuarioService usuarioService = new UsuarioService();
+        ReceitaService receitaService = new ReceitaService();
 
-        Usuario atualizacaUsuario = usuarioService.buscarUsuarioPeloId(2);
+        Receita receita = receitaService.buscarPeloId(1);
 
-        atualizacaUsuario.setEmail("eduardoEditado@teste.com");
+        receita.setDecricao("Bônus");
+        receita.setBanco("Itaú");
+        receita.setEmpresa("Uol");
+        receita.setValor(400D);
+        receita.setTipo(TipoDespesaEReceita.VARIAVEL);
 
-        usuarioService.editarPessoa(atualizacaUsuario);
+        receitaService.editarReceita(receita);
 
     }
 }

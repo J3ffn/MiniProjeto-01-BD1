@@ -1,16 +1,16 @@
 package br.com.dbc.walletlife.apiRequests.receita;
 
-import br.com.dbc.walletlife.service.UsuarioService;
+import br.com.dbc.walletlife.service.ReceitaService;
 
 public class RemoverReceita {
 
     public static void main(String[] args) {
 
-        UsuarioService usuarioService = new UsuarioService();
+        ReceitaService receitaService = new ReceitaService();
 
-        usuarioService.removerPessoa(1);
-        usuarioService.removerPessoa(2);
-        usuarioService.removerPessoa(3);
+        receitaService.removerReceita(1);
+        receitaService.removerReceita(2);
+        receitaService.removerReceita(3);
 
     }
 

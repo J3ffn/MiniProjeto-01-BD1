@@ -2,17 +2,19 @@ package br.com.dbc.walletlife.service;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Usuario;
-import br.com.dbc.walletlife.repository.UsuarioRepository;
+import br.com.dbc.walletlife.dao.UsuarioDAO;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 public class UsuarioService {
 
-    private static final UsuarioRepository usuarioRepository;
+    private static final UsuarioDAO USUARIO_DAO;
 
     static {
-        usuarioRepository = new UsuarioRepository();
+        USUARIO_DAO = new UsuarioDAO();
     }
 
     public UsuarioService() {
@@ -20,7 +22,7 @@ public class UsuarioService {
 
     public boolean validarEmail(String email) {
         try {
-            return usuarioRepository.validarEmail(email);
+            return USUARIO_DAO.validarEmail(email);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -28,7 +30,7 @@ public class UsuarioService {
 
     public Usuario login(String email, String senha) {
         try {
-            return usuarioRepository.loginUsuario(email, senha);
+            return USUARIO_DAO.loginUsuario(email, senha);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -41,8 +43,10 @@ public class UsuarioService {
                 throw new Exception("CPF Invalido!");
             }
 
-            if (!checarCamposUnicosJaCadastrados(usuario)) {
-                usuarioRepository.adicionar(usuario);
+            boolean maiorDeIdade = Period.between(usuario.getDataNascimento(), LocalDate.now()).getYears() >= 18;
+
+            if (!checarCamposUnicosJaCadastrados(usuario) && maiorDeIdade) {
+                USUARIO_DAO.adicionar(usuario);
                 System.out.println();
                 System.out.println("USUÁRIO criado com sucesso!");
             }
@@ -56,7 +60,7 @@ public class UsuarioService {
 
     public void removerPessoa(Integer id) {
         try {
-            usuarioRepository.remover(id);
+            USUARIO_DAO.remover(id);
             System.out.println();
             System.out.println("USUÁRIO removido com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -68,7 +72,7 @@ public class UsuarioService {
     public Usuario editarPessoa(Usuario usuario) {
         Usuario usuarioEditado = null;
         try {
-            usuarioEditado = usuarioRepository.editar(usuario);
+            usuarioEditado = USUARIO_DAO.editar(usuario);
             System.out.println();
             System.out.println("USUÁRIO Alterada com sucesso!");
 
@@ -81,7 +85,7 @@ public class UsuarioService {
     // leitura
     public List<Usuario> listarPessoas() {
         try {
-            List<Usuario> listar = usuarioRepository.listar(null);
+            List<Usuario> listar = USUARIO_DAO.listar(null);
             return listar;
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
@@ -91,7 +95,7 @@ public class UsuarioService {
 
     public Usuario buscarUsuarioPeloId(Integer idUsuario) throws BancoDeDadosException {
 
-        return usuarioRepository.listar(idUsuario)
+        return USUARIO_DAO.listar(idUsuario)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new BancoDeDadosException("Nenhum usuário foi encontrado."));
@@ -105,11 +109,11 @@ public class UsuarioService {
         String cpfUsuario = usuario.getCpf();
 
         System.out.println();
-        if (usuarioRepository.validarEmail(emailUsuario)) {
+        if (USUARIO_DAO.validarEmail(emailUsuario)) {
             System.out.println(emailUsuario + " já cadastrado");
             camposExistentes = true;
         }
-        if (usuarioRepository.validarCPF(cpfUsuario)) {
+        if (USUARIO_DAO.validarCPF(cpfUsuario)) {
             System.out.println(cpfUsuario + " já cadastrado");
             camposExistentes = true;
         }

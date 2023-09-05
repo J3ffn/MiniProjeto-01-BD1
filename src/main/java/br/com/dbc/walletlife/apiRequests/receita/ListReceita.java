@@ -1,14 +1,14 @@
 package br.com.dbc.walletlife.apiRequests.receita;
 
-import br.com.dbc.walletlife.service.UsuarioService;
+import br.com.dbc.walletlife.service.ReceitaService;
 
 public class ListReceita {
 
     public static void main(String[] args) {
 
-        UsuarioService usuarioService = new UsuarioService();
+        ReceitaService receitaService = new ReceitaService();
 
-        usuarioService.listarPessoas()
+        receitaService.listarReceitas()
                 .forEach(
                         usuario -> System.out.println(usuario.toString() + "\n")
                 );

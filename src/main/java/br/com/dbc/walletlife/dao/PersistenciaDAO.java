@@ -1,11 +1,11 @@
-package br.com.dbc.walletlife.repository;
+package br.com.dbc.walletlife.dao;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-public abstract class DAO {
-
+public abstract class PersistenciaDAO {
+    
     private static EntityManagerFactory emf;
 
     static {

@@ -1,7 +1,8 @@
-package br.com.dbc.walletlife.repository;
+package br.com.dbc.walletlife.dao;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Receita;
+import br.com.dbc.walletlife.modelos.Usuario;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -9,7 +10,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-public class ReceitaRepository extends DAO implements Repositorio<Integer, Receita> {
+public class ReceitaDAO extends PersistenciaDAO implements CrudDAO<Integer, Receita> {
 
     @Override
     public Receita adicionar(Receita receita) throws BancoDeDadosException {
@@ -105,6 +106,30 @@ public class ReceitaRepository extends DAO implements Repositorio<Integer, Recei
 
             TypedQuery<Receita> query = con.createQuery(sql, Receita.class);
             query.setParameter("idReceita", idReceita);
+
+            receitas = query.getResultList();
+
+            return receitas;
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+            throw new BancoDeDadosException("Não foi possível listar as receitas.");
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    public List<Receita> listarReceitaPeloUsuario(Usuario usuario) throws BancoDeDadosException {
+        List<Receita> receitas;
+        EntityManager con = null;
+        try {
+            con = this.getEntityManager();
+
+            String sql = "Select u From Receita u where (:usuario is null or u.usuarioFK = :usuario)";
+
+            TypedQuery<Receita> query = con.createQuery(sql, Receita.class);
+            query.setParameter("usuario", usuario);
 
             receitas = query.getResultList();
 

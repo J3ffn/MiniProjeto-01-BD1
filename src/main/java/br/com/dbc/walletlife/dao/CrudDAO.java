@@ -1,10 +1,10 @@
-package br.com.dbc.walletlife.repository;
+package br.com.dbc.walletlife.dao;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 
 import java.util.List;
 
-public interface Repositorio<CHAVE, OBJETO> {
+public interface CrudDAO<CHAVE, OBJETO> {
 
     OBJETO adicionar(OBJETO object) throws BancoDeDadosException;
 

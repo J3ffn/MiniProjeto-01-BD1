@@ -2,23 +2,24 @@ package br.com.dbc.walletlife.service;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Receita;
-import br.com.dbc.walletlife.repository.ReceitaRepository;
+import br.com.dbc.walletlife.modelos.Usuario;
+import br.com.dbc.walletlife.dao.ReceitaDAO;
 
 import java.util.List;
 
 public class ReceitaService {
 
-    private ReceitaRepository receitaRepository;
+    private ReceitaDAO receitaDAO;
 
     public ReceitaService() {
-        receitaRepository = new ReceitaRepository();
+        receitaDAO = new ReceitaDAO();
     }
 
     // Criação de um objeto
     public Receita adicionarReceita(Receita receita) {
         Receita receitaAdicionado = null;
         try {
-            receitaAdicionado = receitaRepository.adicionar(receita);
+            receitaAdicionado = receitaDAO.adicionar(receita);
             System.out.println();
             System.out.println("Receita adicinada com sucesso!");
             return receitaAdicionado;
@@ -31,7 +32,7 @@ public class ReceitaService {
     // Remoção
     public void removerReceita(Integer id) {
         try {
-            receitaRepository.remover(id);
+            receitaDAO.remover(id);
             System.out.println();
             System.out.println("Removido com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -40,10 +41,10 @@ public class ReceitaService {
     }
 
     // Atualização de um objeto
-    public Receita editarReceita(Integer id, Receita receita) {
+    public Receita editarReceita(Receita receita) {
         Receita ReceitaEditada = null;
         try {
-            ReceitaEditada = receitaRepository.editar(receita);
+            ReceitaEditada = receitaDAO.editar(receita);
             System.out.println();
             System.out.println("Alteração realizada com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -53,12 +54,29 @@ public class ReceitaService {
     }
 
     // Leitura
-    public List<Receita> listar(Integer idUsuario) {
+    public List<Receita> listar(Integer idReceita) {
         try {
-            return receitaRepository.listar(idUsuario);
+            return receitaDAO.listar(idReceita);
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Receita buscarPeloId(Integer idReceita) throws BancoDeDadosException {
+        return receitaDAO.listar(idReceita).get(0);
+    }
+
+    public List<Receita> listarReceitas() {
+        try {
+            return receitaDAO.listar(null);
+        } catch (BancoDeDadosException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Receita> buscarReceitasPeloUsuario(Usuario usuario) throws BancoDeDadosException {
+        return receitaDAO.listarReceitaPeloUsuario(usuario);
     }
 }

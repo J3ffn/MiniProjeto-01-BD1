@@ -53,15 +53,13 @@ public class Receita extends AbstractMovimentoDinheiro<TipoDespesaEReceita> {
         return usuarioFK;
     }
 
-    public void setUsuarioFK(Usuario usuarioFK) {
-        this.usuarioFK = usuarioFK;
-    }
-
     @Override
     public String toString() {
-        return String.format("""
-                %s
-                Banco: %s
-                Empresa: %s""", super.toString(), getBanco(), getEmpresa());
+        return "Receita {" +
+                    "idReceita= " + idReceita + ", " +
+                    "banco= '" + banco + '\'' + ", " +
+                    "empresa= '" + empresa + '\'' + ", " +
+                    "usuarioFK= " + usuarioFK.getIdUsuario() +
+                '}';
     }
 }

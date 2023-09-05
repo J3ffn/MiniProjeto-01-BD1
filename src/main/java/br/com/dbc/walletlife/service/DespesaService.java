@@ -3,25 +3,27 @@ package br.com.dbc.walletlife.service;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Despesa;
-import br.com.dbc.walletlife.repository.DespesaDAO;
+import br.com.dbc.walletlife.modelos.Usuario;
+import br.com.dbc.walletlife.dao.DespesaDAO;
 
 import java.util.List;
 
 public class DespesaService {
 
-    private DespesaDAO despesaDao;
+    private DespesaDAO despesaDAO;
 
     public DespesaService() {
-        despesaDao = new DespesaDAO();
+        despesaDAO = new DespesaDAO();
     }
 
     // criação de um objeto
-    public void adicionarDespesa(Despesa despesa) {
+    public Despesa adicionarDespesa(Despesa despesa) {
         try {
 
-            Despesa despesaAdicionado = despesaDao.adicionar(despesa);
+            Despesa despesaAdicionado = despesaDAO.adicionar(despesa);
             System.out.println();
             System.out.println("DESPESA adicionada com sucesso!");
+            return despesaAdicionado;
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -29,12 +31,13 @@ public class DespesaService {
 //            System.out.println("TRACE: ");
 //            e.printStackTrace();
         }
+        return null;
     }
 
     // remoção
     public void removerDespesa(Integer id) {
         try {
-            despesaDao.remover(id);
+            despesaDAO.remover(id);
             System.out.println();
             System.out.println("DESPESA removida com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -43,9 +46,9 @@ public class DespesaService {
     }
 
     // atualização de um objeto
-    public void editarDespesa(Integer id, Despesa despesa) {
+    public void editarDespesa(Despesa despesa) {
         try {
-            despesaDao.editar(despesa);
+            despesaDAO.editar(despesa);
             System.out.println();
             System.out.println("DESPESA alterada com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -54,14 +57,21 @@ public class DespesaService {
     }
 
     // leitura
-    public List<Despesa> listarDespesa(Integer idUsuario) {
+    public List<Despesa> listarDespesa() {
         try {
-            return despesaDao.listar(idUsuario);
+            return despesaDAO.listar(null);
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public Despesa buscarPeloId(Integer idDespesa) throws BancoDeDadosException {
+        return despesaDAO.listar(idDespesa).get(0);
+    }
+
+    public List<Despesa> buscarReceitasPeloUsuario(Usuario usuario) throws BancoDeDadosException {
+        return despesaDAO.listarReceitaPeloUsuario(usuario);
+    }
 
 }

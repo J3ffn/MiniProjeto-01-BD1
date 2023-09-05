@@ -5,11 +5,11 @@
 
 	<persistence-unit name="miniProjetoBD1" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-		<!-- <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> -->
+<!--		 <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider> -->
 
 		<class>br.com.dbc.walletlife.modelos.Usuario</class>
 		<class>br.com.dbc.walletlife.modelos.Despesa</class>
-<!--		<class>br.com.dbc.walletlife.modelos.Investimento</class>-->
+		<class>br.com.dbc.walletlife.modelos.Investimento</class>
 		<class>br.com.dbc.walletlife.modelos.Receita</class>
 
 		<properties>

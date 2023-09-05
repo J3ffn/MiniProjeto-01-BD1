@@ -1,4 +1,4 @@
-package br.com.dbc.walletlife.repository;
+package br.com.dbc.walletlife.dao;
 
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.sql.*;
 import java.util.List;
 
-public class UsuarioRepository extends DAO implements Repositorio<Integer, Usuario> {
+public class UsuarioDAO extends PersistenciaDAO implements CrudDAO<Integer, Usuario> {
 
     public Usuario loginUsuario(String email, String senha) throws SQLException {
         EntityManager con = this.getEntityManager();

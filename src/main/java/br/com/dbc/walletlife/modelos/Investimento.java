@@ -1,14 +1,8 @@
 package br.com.dbc.walletlife.modelos;
 
-
 import java.time.LocalDate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "INVESTIMENTO")
@@ -34,16 +28,24 @@ public class Investimento {
     @Column(name = "DESCRICAO")
     private String descricao;
 
-    @Column(name = "ID_USUARIO")
-    private Integer idFK;
-    
-    // getters e setters
-	public Integer getId() {
-		return id;
+	@ManyToOne
+	@JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario", nullable = false)
+    private Usuario usuarioFK;
+
+	public Investimento() {}
+
+	public Investimento(String corretora, String tipo, Double valor, LocalDate dataInicio, String descricao, Usuario idFK) {
+		this.corretora = corretora;
+		this.tipo = tipo;
+		this.valor = valor;
+		this.dataInicio = dataInicio;
+		this.descricao = descricao;
+		this.usuarioFK = idFK;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	// getters e setters
+	public Integer getId() {
+		return id;
 	}
 
 	public String getCorretora() {
@@ -86,12 +88,20 @@ public class Investimento {
 		this.descricao = descricao;
 	}
 
-	public Integer getIdFK() {
-		return idFK;
+	public Usuario getUsuarioFK() {
+		return usuarioFK;
 	}
 
-	public void setIdFK(Integer idFK) {
-		this.idFK = idFK;
+	@Override
+	public String toString() {
+		return "Investimento{" +
+					"id= " + id +
+					"corretora= '" + corretora + '\'' + ", " +
+					"tipo= '" + tipo + '\'' + ", " +
+					"valor= " + valor + ", " +
+					"dataInicio= " + dataInicio + ", " +
+					"descricao= '" + descricao + '\'' + ", " +
+					"usuarioFK= " + usuarioFK.getIdUsuario() +
+				'}';
 	}
-    
 }
