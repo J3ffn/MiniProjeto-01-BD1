@@ -3,23 +3,23 @@ package br.com.dbc.walletlife.service;
 
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Despesa;
-import br.com.dbc.walletlife.repository.DespesaRepository;
+import br.com.dbc.walletlife.repository.DespesaDAO;
 
 import java.util.List;
 
 public class DespesaService {
 
-    private DespesaRepository despesaRepository;
+    private DespesaDAO despesaDao;
 
     public DespesaService() {
-        despesaRepository = new DespesaRepository();
+        despesaDao = new DespesaDAO();
     }
 
     // criação de um objeto
     public void adicionarDespesa(Despesa despesa) {
         try {
 
-            Despesa despesaAdicionado = despesaRepository.adicionar(despesa);
+            Despesa despesaAdicionado = despesaDao.adicionar(despesa);
             System.out.println();
             System.out.println("DESPESA adicionada com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -34,7 +34,7 @@ public class DespesaService {
     // remoção
     public void removerDespesa(Integer id) {
         try {
-            despesaRepository.remover(id);
+            despesaDao.remover(id);
             System.out.println();
             System.out.println("DESPESA removida com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -45,7 +45,7 @@ public class DespesaService {
     // atualização de um objeto
     public void editarDespesa(Integer id, Despesa despesa) {
         try {
-            despesaRepository.editar(despesa);
+            despesaDao.editar(despesa);
             System.out.println();
             System.out.println("DESPESA alterada com sucesso!");
         } catch (BancoDeDadosException e) {
@@ -56,7 +56,7 @@ public class DespesaService {
     // leitura
     public List<Despesa> listarDespesa(Integer idUsuario) {
         try {
-            return despesaRepository.listar(idUsuario);
+            return despesaDao.listar(idUsuario);
         } catch (BancoDeDadosException e) {
             e.printStackTrace();
         }

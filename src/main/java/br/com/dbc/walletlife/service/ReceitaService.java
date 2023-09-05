@@ -14,23 +14,21 @@ public class ReceitaService {
         receitaRepository = new ReceitaRepository();
     }
 
-    // criação de um objeto
-    public void adicionarReceita(Receita receita) {
+    // Criação de um objeto
+    public Receita adicionarReceita(Receita receita) {
+        Receita receitaAdicionado = null;
         try {
-            Receita receitaAdicionado = receitaRepository.adicionar(receita);
-            System.out.println("\nReceita adicinada com sucesso!" +
-                    "\nBanco: " + receitaAdicionado.getBanco() +
-                    "\nEmpresa:  " + receitaAdicionado.getEmpresa() +
-                    "\nValor: " + receitaAdicionado.getValor() +
-                    "\nDescrição: " + receitaAdicionado.getDescricao());
+            receitaAdicionado = receitaRepository.adicionar(receita);
+            System.out.println();
+            System.out.println("Receita adicinada com sucesso!");
+            return receitaAdicionado;
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
-//            System.out.println("TRACE: ");
-//            e.printStackTrace();
         }
+        return receitaAdicionado;
     }
 
-    // remoção
+    // Remoção
     public void removerReceita(Integer id) {
         try {
             receitaRepository.remover(id);
@@ -41,7 +39,7 @@ public class ReceitaService {
         }
     }
 
-    // atualização de um objeto
+    // Atualização de um objeto
     public Receita editarReceita(Integer id, Receita receita) {
         Receita ReceitaEditada = null;
         try {
@@ -54,7 +52,7 @@ public class ReceitaService {
         return ReceitaEditada;
     }
 
-    // leitura
+    // Leitura
     public List<Receita> listar(Integer idUsuario) {
         try {
             return receitaRepository.listar(idUsuario);

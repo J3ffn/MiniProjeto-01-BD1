@@ -1,173 +1,121 @@
-package dao;
+package br.com.dbc.walletlife.repository;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-import br.com.dbc.walletlife.enumerators.TipoDespesaEReceita;
 import br.com.dbc.walletlife.exceptions.BancoDeDadosException;
 import br.com.dbc.walletlife.modelos.Despesa;
-import br.com.dbc.walletlife.repository.ConexaoBancoDeDados;
-import br.com.dbc.walletlife.repository.Repositorio;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
 
 public class DespesaDAO extends DAO implements Repositorio<Integer, Despesa> {
 
 	@Override
 	public Despesa adicionar(Despesa despesa) throws BancoDeDadosException {
-		Connection con = null;
+		EntityManager con = null;
+		EntityTransaction transactional = null;
 		try {
-			con = ConexaoBancoDeDados.getConnection();
-			con.setAutoCommit(false);
+			con = this.getEntityManager();
+			transactional = con.getTransaction();
 
-			String sql = "INSERT INTO DESPESA\n" +
-					"(ID_DESPESA, TIPO, VALOR, DESCRICAO, DATA_PAGAMENTO, ID_USUARIO)\n" +
-					"VALUES (?, ?, ?, ?, ?, ?)";
+			transactional.begin();
+			con.persist(despesa);
 
-			PreparedStatement stmt = con.prepareStatement(sql);
+			transactional.commit();
 
-			stmt.setInt(1, despesa.getId());
-			stmt.setString(2, despesa.getTipo().toString());
-			stmt.setDouble(3, despesa.getValor());
-			stmt.setString(4, despesa.getDescricao());
-			stmt.setDate(5, Date.valueOf(despesa.getDataPagamento()));
-			stmt.setInt(6, despesa.getIdFK());
-
-			stmt.executeUpdate();
-			con.commit();
 			return despesa;
-		} catch (SQLException e) {
-			if (con != null) {
-				try {
-					con.rollback();
-				} catch (SQLException ex) {
-					ex.printStackTrace();
-				}
+		} catch (PersistenceException e){
+			if (transactional.isActive()) {
+				transactional.rollback();
 			}
-			throw new BancoDeDadosException(e);
+//            e.printStackTrace();
+			throw new BancoDeDadosException("Não foi possível adicionar a despesa ao banco.");
 		} finally {
-			try {
-				if (con != null) {
-					con.setAutoCommit(true);
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	@Override
-	public void remover(Integer id) throws BancoDeDadosException {
-		Connection con = null;
+	public void remover(Integer idDespesa) throws BancoDeDadosException {
+		EntityManager con = null;
+		EntityTransaction transection = null;
 		try {
-			con = ConexaoBancoDeDados.getConnection();
-			con.setAutoCommit(false);
+			con = this.getEntityManager();
+			transection = con.getTransaction();
 
-			String sql = "DELETE FROM DESPESA WHERE ID_DESPESA = ?";
+			transection.begin();
 
-			PreparedStatement stmt = con.prepareStatement(sql);
-			stmt.setInt(1, id);
+			Despesa receita = con.find(Despesa.class, idDespesa);
 
-			stmt.executeUpdate();
-			con.commit();
-		} catch (SQLException e) {
-			if (con != null) {
-				try {
-					con.rollback();
-				} catch (SQLException ex) {
-					ex.printStackTrace();
-				}
+			con.remove(receita);
+
+			transection.commit();
+		} catch (PersistenceException e) {
+			if (transection != null && transection.isActive()) {
+				transection.rollback();
 			}
-			throw new BancoDeDadosException(e);
+			e.printStackTrace();
+			throw new BancoDeDadosException("Não foi possível deletar a despesa do banco.");
 		} finally {
-			try {
-				if (con != null) {
-					con.setAutoCommit(true);
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	@Override
 	public Despesa editar(Despesa despesa) throws BancoDeDadosException {
-		Connection con = null;
+		EntityManager con = null;
+		EntityTransaction transection = null;
 		try {
-			con = ConexaoBancoDeDados.getConnection();
-			con.setAutoCommit(false);
+			con = this.getEntityManager();
+			transection = con.getTransaction();
 
-			String sql = "UPDATE DESPESA SET VALOR = ?, DESCRICAO = ? WHERE ID_USUARIO = ?";
+			transection.begin();
 
-			PreparedStatement stmt = con.prepareStatement(sql);
+			Despesa despesaAlteradaRetornadaDoBanco = con.merge(despesa);
 
-			stmt.setDouble(1, despesa.getValor());
-			stmt.setString(2, despesa.getDescricao());
-			stmt.setInt(3, despesa.getIdFK());
+			transection.commit();
 
-			stmt.executeUpdate();
-			con.commit();
-			return despesa;
-		} catch (SQLException e) {
-			if (con != null) {
-				try {
-					con.rollback();
-				} catch (SQLException ex) {
-					ex.printStackTrace();
-				}
+			return despesaAlteradaRetornadaDoBanco;
+		} catch (PersistenceException e) {
+			if (transection != null && transection.isActive()) {
+				transection.rollback();
 			}
-			throw new BancoDeDadosException(e);
+			e.printStackTrace();
+			throw new BancoDeDadosException("Não foi possível editar a despesa do banco.");
 		} finally {
-			try {
-				if (con != null) {
-					con.setAutoCommit(true);
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
 
 	@Override
 	public List<Despesa> listar(Integer idUsuario) throws BancoDeDadosException {
-		List<Despesa> despesas = new ArrayList<>();
-		Connection con = null;
+		List<Despesa> despesas;
+		EntityManager con = null;
 		try {
-			con = ConexaoBancoDeDados.getConnection();
+			con = this.getEntityManager();
 
-			String sql = "SELECT * FROM DESPESA WHERE ID_USUARIO = ?";
+			String sql = "Select u From Despesa u where (:idUsuario is null or u.usuarioFK.idUsuario = :idUsuario)";
 
-			PreparedStatement stmt = con.prepareStatement(sql);
-			stmt.setInt(1, idUsuario);
+			TypedQuery<Despesa> query = con.createQuery(sql, Despesa.class);
+			query.setParameter("idUsuario", idUsuario);
 
-			ResultSet res = stmt.executeQuery();
+			despesas = query.getResultList();
 
-			while (res.next()) {
-				Despesa despesa = new Despesa();
-				despesa.setId(res.getInt("ID_DESPESA"));
-				despesa.setTipo(TipoDespesaEReceita.valueOf(res.getString("TIPO")));
-				despesa.setValor(res.getDouble("VALOR"));
-				despesa.setDescricao(res.getString("DESCRICAO"));
-				despesa.setDataPagamento(res.getDate("DATA_PAGAMENTO").toLocalDate());
-				despesa.setIdFK(res.getInt("ID_USUARIO"));
-				despesas.add(despesa);
-			}
 			return despesas;
-		} catch (SQLException e) {
-			throw new BancoDeDadosException(e);
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+			throw new BancoDeDadosException("Não foi possível listar as despesas.");
 		} finally {
-			try {
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			if (con != null) {
+				con.close();
 			}
 		}
 	}
