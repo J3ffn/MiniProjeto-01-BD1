@@ -1,54 +1,97 @@
 package br.com.dbc.walletlife.modelos;
 
+
 import java.time.LocalDate;
 
-public class Investimento extends AbstractMovimentoDinheiro<String> {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-    protected String corretora;
+@Entity
+@Table(name = "INVESTIMENTO")
+public class Investimento {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_INVESTIMENTO")
+    private Integer id;
+
+    @Column(name = "CORRETORA")
+    private String corretora;
+
+    @Column(name = "TIPO")
+    private String tipo;
+
+    @Column(name = "VALOR")
+    private Double valor;
+
+    @Column(name = "DATA_INICIAL")
     private LocalDate dataInicio;
 
-    private int idFK;
+    @Column(name = "DESCRICAO")
+    private String descricao;
 
-    public Investimento() {
-    }
+    @Column(name = "ID_USUARIO")
+    private Integer idFK;
+    
+    // getters e setters
+	public Integer getId() {
+		return id;
+	}
 
-    public Investimento(double valor, String descricao, String corretora, LocalDate dataInicio, int idFK) {
-        super("Investimento", valor, descricao);
-        this.corretora = corretora;
-        this.dataInicio = dataInicio;
-        this.idFK = idFK;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public String getCorretora() {
-        return corretora;
-    }
+	public String getCorretora() {
+		return corretora;
+	}
 
-    public void setCorretora(String corretora) {
-        this.corretora = corretora;
-    }
+	public void setCorretora(String corretora) {
+		this.corretora = corretora;
+	}
 
-    public LocalDate getDataInicio() {
-        return dataInicio;
-    }
+	public String getTipo() {
+		return tipo;
+	}
 
-    public void setDataInicio(LocalDate dataInicio) {
-        this.dataInicio = dataInicio;
-    }
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
 
-    public int getIdFK() {
-        return idFK;
-    }
+	public Double getValor() {
+		return valor;
+	}
 
-    public void setIdFK(int idFK) {
-        this.idFK = idFK;
-    }
+	public void setValor(Double valor) {
+		this.valor = valor;
+	}
 
-    @Override
-    public String toString() {
-        return String.format("""
-                %s
-                Corretora: %s
-                Data início: %s""", super.toString(), getCorretora(), getDataInicio());
-    }
+	public LocalDate getDataInicio() {
+		return dataInicio;
+	}
+
+	public void setDataInicio(LocalDate dataInicio) {
+		this.dataInicio = dataInicio;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public Integer getIdFK() {
+		return idFK;
+	}
+
+	public void setIdFK(Integer idFK) {
+		this.idFK = idFK;
+	}
+    
 }
